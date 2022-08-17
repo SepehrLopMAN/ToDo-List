@@ -1,0 +1,219 @@
+<h1>ToDo List</h1>
+<app-filtration [formData]="filterData"></app-filtration>
+
+<table>
+  <tr>
+    <th>Title</th>
+    <th>Discription</th>
+    <th>Priority</th>
+    <th>Status</th>
+    <th>Created on</th>
+    <th>Deadline</th>
+    <th>Edit</th>
+    <th>Delete</th>
+  </tr>
+  <tr
+    *ngFor="
+      let item of this.data
+        | filterItems: filterData.getRawValue()
+        | sortItems
+        | paginate
+          : {
+              itemsPerPage: 5,
+              currentPage: (page - 1) * 5 + 1 > this.data.size ? 1 : page
+            };
+      let i = index
+    "
+    [ngClass]="{
+      completed: item.value.completed,
+      important: item.value.importance
+    }"
+  >
+    <td>
+      <input
+        *ngIf="item.value.editingStatus; else elseTitle"
+        type="text"
+        [value]="item.value.title"
+        [formControl]="item.controls['title']"
+        placeholder="Title required*"
+      />
+
+      <ng-template #elseTitle>
+        {{ item.value.title }}
+      </ng-template>
+    </td>
+    <td>
+      <input
+        *ngIf="item.value.editingStatus; else elseDiscription"
+        type="text"
+        [value]="item.value.discription"
+        [formControl]="item.controls['discription']"
+      />
+
+      <ng-template #elseDiscription>
+        {{ item.value.discription ? item.value.discription : "_None_" }}
+      </ng-template>
+    </td>
+    <td>
+      <div *ngIf="item.value.editingStatus; else elsePriority">
+        <label>
+          High
+          <input
+            type="radio"
+            [name]="'priority' + i"
+            [value]="true"
+            [formControl]="item.controls['importance']"
+          />
+        </label>
+        <label>
+          Low
+          <input
+            type="radio"
+            [name]="'priority' + i"
+            [value]="false"
+            [formControl]="item.controls['importance']"
+          />
+        </label>
+      </div>
+
+      <ng-template #elsePriority>
+        {{ item.value.importance ? "High" : "Low" }}
+      </ng-template>
+    </td>
+    <td>
+      <div>
+        {{ item.value.completed ? "Completed" : "Pending.." }}
+      </div>
+      <button
+        *ngIf="!item.value.completed; else elseStatus"
+        (click)="item.controls['completed'].setValue(true)"
+      >
+        <svg
+          style="color: green"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          width="20"
+          zoomAndPan="magnify"
+          viewBox="0 0 30 25"
+          height="15"
+          preserveAspectRatio="xMidYMid meet"
+          version="1.0"
+        >
+          <defs>
+            <clipPath id="id1">
+              <path
+                d="M 2.328125 4.222656 L 27.734375 4.222656 L 27.734375 24.542969 L 2.328125 24.542969 Z M 2.328125 4.222656 "
+                clip-rule="nonzero"
+                fill="blue"
+              ></path>
+            </clipPath>
+          </defs>
+          <g clip-path="url(#id1)">
+            <path
+              fill="blue"
+              d="M 27.5 7.53125 L 24.464844 4.542969 C 24.15625 4.238281 23.65625 4.238281 23.347656 4.542969 L 11.035156 16.667969 L 6.824219 12.523438 C 6.527344 12.230469 6 12.230469 5.703125 12.523438 L 2.640625 15.539062 C 2.332031 15.84375 2.332031 16.335938 2.640625 16.640625 L 10.445312 24.324219 C 10.59375 24.472656 10.796875 24.554688 11.007812 24.554688 C 11.214844 24.554688 11.417969 24.472656 11.566406 24.324219 L 27.5 8.632812 C 27.648438 8.488281 27.734375 8.289062 27.734375 8.082031 C 27.734375 7.875 27.648438 7.679688 27.5 7.53125 Z M 27.5 7.53125 "
+              fill-opacity="1"
+              fill-rule="nonzero"
+            ></path>
+          </g>
+        </svg>
+        Mark as completed
+      </button>
+      <ng-template #elseStatus>
+        <button (click)="item.controls['completed'].setValue(false)">
+          <span style="color: red">&otimes;</span>
+          Mark as pending..
+        </button>
+      </ng-template>
+    </td>
+    <td>{{ item.value.createdOn }}</td>
+    <td>
+      <input
+        *ngIf="item.value.editingStatus; else elseDeadline"
+        type="date"
+        [value]="item.value.deadline"
+        [formControl]="item.controls['deadline']"
+      />
+
+      <ng-template #elseDeadline>
+        {{ item.value.deadline ? item.value.deadline : "_None_" }}
+      </ng-template>
+    </td>
+    <td>
+      <div *ngIf="item.value.editingStatus; else elseEdit">
+        <button (click)="this.taskService.modifyChanges(item)">
+          Save Changes
+        </button>
+      </div>
+      <ng-template #elseEdit>
+        <svg
+          style="cursor: pointer"
+          width="24"
+          stroke-width="1.5"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          (click)="this.taskService.enableEditing(item)"
+        >
+          <path
+            d="M20 12V5.74853C20 5.5894 19.9368 5.43679 19.8243 5.32426L16.6757 2.17574C16.5632 2.06321 16.4106 2 16.2515 2H4.6C4.26863 2 4 2.26863 4 2.6V21.4C4 21.7314 4.26863 22 4.6 22H11"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M8 10H16M8 6H12M8 14H11"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M16 5.4V2.35355C16 2.15829 16.1583 2 16.3536 2C16.4473 2 16.5372 2.03725 16.6036 2.10355L19.8964 5.39645C19.9628 5.46275 20 5.55268 20 5.64645C20 5.84171 19.8417 6 19.6464 6H16.6C16.2686 6 16 5.73137 16 5.4Z"
+            fill="currentColor"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M17.9541 16.9394L18.9541 15.9394C19.392 15.5015 20.102 15.5015 20.5399 15.9394V15.9394C20.9778 16.3773 20.9778 17.0873 20.5399 17.5252L19.5399 18.5252M17.9541 16.9394L14.963 19.9305C14.8131 20.0804 14.7147 20.2741 14.6821 20.4835L14.4394 22.0399L15.9957 21.7973C16.2052 21.7646 16.3988 21.6662 16.5487 21.5163L19.5399 18.5252M17.9541 16.9394L19.5399 18.5252"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </ng-template>
+    </td>
+    <td>
+      <svg
+        style="color: red; cursor: pointer"
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        stroke-width="1.5"
+        fill="currentColor"
+        viewBox="0 0 16 16"
+        (click)="this.taskService.deleteItem(item, this.data)"
+      >
+        <path
+          d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"
+          fill="red"
+        ></path>
+        <path
+          fill-rule="evenodd"
+          d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"
+          fill="red"
+        ></path>
+      </svg>
+    </td>
+  </tr>
+</table>
+<div>
+  <pagination-controls
+    nextLabel=""
+    previousLabel=""
+    (pageChange)="page = $event"
+  ></pagination-controls>
+</div>
+
+<app-task-adder></app-task-adder>

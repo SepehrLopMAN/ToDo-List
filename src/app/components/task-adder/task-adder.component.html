@@ -1,0 +1,53 @@
+<button
+  title="add new task"
+  (click)="
+    this.showForm = !this.showForm;
+    !this.showForm ? this._taskForm.reset({ importance: false }) : {}
+  "
+>
+  {{ showForm ? "&times; Close" : "&oplus; Add Task" }}
+</button>
+<form
+  *ngIf="showForm"
+  [formGroup]="_taskForm"
+  (submit)="taskService.initiateNewTask(this._taskForm, this.showForm)"
+>
+  <fieldset>
+    <legend>New Task:</legend>
+    <div>
+      <label>
+        Title:
+        <input
+          type="text"
+          placeholder="Required*"
+          required
+          [formControl]="_taskForm.controls['title']"
+        />
+      </label>
+    </div>
+    <div>
+      <label>
+        Discription:
+        <input type="text" [formControl]="_taskForm.controls['discription']" />
+      </label>
+    </div>
+    <div>
+      <label>
+        High priority tasks:
+        <input
+          type="checkbox"
+          [formControl]="_taskForm.controls['importance']"
+        />
+      </label>
+    </div>
+    <div>
+      <label>
+        Deadline:
+        <input type="date" [formControl]="_taskForm.controls['deadline']" />
+      </label>
+    </div>
+    <div>
+      <input type="submit" value="Add to list" />
+    </div>
+  </fieldset>
+</form>

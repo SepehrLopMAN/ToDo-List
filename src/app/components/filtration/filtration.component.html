@@ -1,0 +1,25 @@
+<form [formGroup]="formData">
+  <input
+    type="search"
+    placeholder="search"
+    [formControl]="formData.controls['searchKey']"
+  />
+  <label>
+    Completed tasks-Only:
+    <input
+      type="checkbox"
+      [value]="completedCheckbox.checked"
+      [formControl]="formData.controls['completedFilter']"
+      #completedCheckbox
+    />
+  </label>
+  <label>
+    Important tasks-Only:
+    <input
+      type="checkbox"
+      [formControl]="formData.controls['importanceFilter']"
+      [value]="importanceCheckbox.checked"
+      #importanceCheckbox
+    />
+  </label>
+</form>

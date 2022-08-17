@@ -1,0 +1,13 @@
+button[title="add new task"] {
+  font-size: 1em;
+  cursor: pointer;
+}
+form {
+  margin: 1em 0;
+  > fieldset > div {
+    margin: 0.5em 0;
+  }
+  input:required::placeholder {
+    color: red;
+  }
+}
